@@ -18,6 +18,11 @@ const JWT_SECRET = process.env['JWT_SECRET'] || 'youdonotknow';
 app.use(cors());
 app.use(express.json());
 
+// Health check endpoint for Railway
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // GraphQL context type
 interface GraphQLContext {
   user?: {
