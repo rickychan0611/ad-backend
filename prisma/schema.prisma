@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  fullName  String
+  role      String   @default("user")
+  balance   Float    @default(0)
+  createdAt DateTime @default(now())
+  ads       Ad[]
+  mediaClaims ClaimedAd[] @relation("MediaClaims")
+  mediaAssignments MediaAssignment[] @relation("MediaAssignments")
+  
+  @@map("users")
+}
+
+model Ad {
+  id               Int      @id @default(autoincrement())
+  groupLink        String
+  brandName        String
+  logoUrl          String?
+  keywords         String
+  recommendedText  String
+  region           String
+  industry         String
+  targetGender     String
+  targetAgeRange   String
+  budget           Float    @default(0)
+  costPerPost      Float?   // Cost per post set by admin
+  totalPosts       Int?     // Total number of posts (budget / costPerPost)
+  status           String   @default("preparing") // preparing, paid, approved, in_progress, completed
+  paymentStatus    String   @default("pending") // pending, paid
+  totalMembers     Int      @default(0)
+  lastJoinTime     DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  // Relations
+  userId           Int
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  claimedAds       ClaimedAd[]
+  mediaAssignments MediaAssignment[]
+  
+  @@map("ads")
+}
+
+model MediaAssignment {
+  id              Int      @id @default(autoincrement())
+  adId            Int
+  mediaUserId     Int
+  assignedPosts   Int      // Number of posts assigned to this media user
+  completedPosts  Int      @default(0) // Number of posts completed by media user
+  status          String   @default("assigned") // assigned, claimed, in_progress, completed, denied
+  claimedAt       DateTime?
+  completedAt     DateTime?
+  urls            Json?    // Array of post URLs
+  paymentStatus   String   @default("pending") // pending, paid
+  paidAt          DateTime?
+  
+  // Relations
+  ad              Ad       @relation(fields: [adId], references: [id], onDelete: Cascade)
+  mediaUser       User     @relation("MediaAssignments", fields: [mediaUserId], references: [id], onDelete: Cascade)
+  
+  @@map("media_assignments")
+}
+
+model ClaimedAd {
+  id              Int      @id @default(autoincrement())
+  adId            Int
+  mediaUserId     Int
+  claimedNumber   Int
+  urls            Json?    // Array of post URLs
+  claimedAt       DateTime @default(now())
+  status          String   @default("pending") // pending, completed, rejected
+  completedAt     DateTime?
+  paymentStatus   String   @default("pending") // pending, paid
+  
+  // Relations
+  ad              Ad       @relation(fields: [adId], references: [id], onDelete: Cascade)
+  mediaUser       User     @relation("MediaClaims", fields: [mediaUserId], references: [id], onDelete: Cascade)
+  
+  @@map("claimed_ads")
+}
+
+// Key Prisma Features Used:
+// @id - Marks a field as the primary key
+// @default(autoincrement()) - Auto-increments the ID for each new record
+// @unique - Ensures no two users can have the same email
+// @default(now()) - Sets the current timestamp when a record is created
+// @relation - Defines relationships between models
+// @updatedAt - Automatically updates the timestamp when record is modified
+// String[] - Array of strings for countries
+// onDelete: Cascade - Deletes related ads when user is deleted
