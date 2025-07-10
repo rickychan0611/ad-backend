@@ -1,8 +1,8 @@
-import { authResolvers } from './auth';
-import { adResolvers } from './ads';
-import { userResolvers } from './users';
-import { assignmentResolvers } from './assignments';
-import { claimedAdResolvers } from './claimedAds';
+import { authResolvers } from './auth.js';
+import { adResolvers } from './ads.js';
+import { userResolvers } from './users.js';
+import { assignmentResolvers } from './assignments.js';
+import { claimedAdResolvers } from './claimedAds.js';
 
 export const resolvers = {
   Query: {

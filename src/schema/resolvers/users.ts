@@ -1,4 +1,4 @@
-import { Context } from './types';
+import { Context } from './types.js';
 
 export const userResolvers = {
   me: async (_: any, __: any, context: Context) => {

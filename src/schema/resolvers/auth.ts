@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { Context } from './types';
+import { Context } from './types.js';
 
 const JWT_SECRET = process.env['JWT_SECRET'] || 'youdonotknow';
 

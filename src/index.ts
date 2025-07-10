@@ -2,8 +2,8 @@ import express, { Application, Request } from 'express';
 import cors from 'cors';
 import { ApolloServer } from 'apollo-server-express';
 import dotenv from 'dotenv';
-import { typeDefs } from './schema/typeDefs';
-import { resolvers } from './schema/resolvers';
+import { typeDefs } from './schema/typeDefs.js';
+import { resolvers } from './schema/resolvers.js';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 
