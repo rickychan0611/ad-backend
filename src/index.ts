@@ -65,18 +65,48 @@ const server = new ApolloServer({
 
 const startServer = async (): Promise<void> => {
   try {
+    console.log('🔧 Starting server initialization...');
+    
+    // Test database connection
+    console.log('🔧 Testing database connection...');
+    await prisma.$connect();
+    console.log('✅ Database connected successfully');
+    
+    console.log('🔧 Starting Apollo Server...');
     await server.start();
     server.applyMiddleware({ app: app as any });
+    console.log('✅ Apollo Server started successfully');
 
     const PORT: number = parseInt(process.env['PORT'] || '4000', 10);
+    console.log(`🔧 Starting HTTP server on port ${PORT}...`);
     
     app.listen(PORT, () => {
-      console.log(`🚀 GraphQL running at http://localhost:${PORT}${server.graphqlPath}`);
+      console.log(`🚀 Server running at http://localhost:${PORT}`);
+      console.log(`🚀 GraphQL endpoint: http://localhost:${PORT}${server.graphqlPath}`);
+      console.log(`🚀 Health check: http://localhost:${PORT}/health`);
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error('❌ Failed to start server:', error);
+    console.error('❌ Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace',
+      name: error instanceof Error ? error.name : 'Unknown'
+    });
     process.exit(1);
   }
 };
+
+// Handle graceful shutdown
+process.on('SIGTERM', async () => {
+  console.log('🛑 Received SIGTERM, shutting down gracefully...');
+  await prisma.$disconnect();
+  process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+  console.log('🛑 Received SIGINT, shutting down gracefully...');
+  await prisma.$disconnect();
+  process.exit(0);
+});
 
 startServer();
